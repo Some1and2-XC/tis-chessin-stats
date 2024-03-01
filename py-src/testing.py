@@ -14,7 +14,7 @@ from re import findall as re
 from Lindex import lindex
 import zstandard as zstd
 
-import casting
+from casting import ATTRIBUTES
 
 
 def get_network_filenames() -> list[str]:
@@ -46,7 +46,7 @@ def load_file(url: str, method):
 
     count = 0
     move_index = "Moves"  # The dict index of the moves of the game
-    show_lines = 1
+    show_lines = 0
 
     fh = requests.get(url, stream=True).raw
 
@@ -55,17 +55,14 @@ def load_file(url: str, method):
     text_stream = io.TextIOWrapper(stream_reader, encoding="utf-8")
 
     output = dict()
-    for line in text_stream:
-        if show_lines:
-            handle_lines(line, count)
-            count += 1
 
-            continue
+    for line in text_stream:
 
         line = line.strip()
 
         if line == "" and move_index in output:
-            lindex(output).pprint()
+
+            handle_output(output)
             input()
             output = dict()
             continue
@@ -77,6 +74,7 @@ def load_file(url: str, method):
             continue
 
         output[move_index] = line
+
     handle_lines(line, count, last=True)
 
 
@@ -91,6 +89,15 @@ def handle_lines(line: str, count, last = False):
         print(f" - [File: {CURRENT_FILE_IDX + 1} / {AMNT_OF_FILES}] Filename: {FILE_SPECIFIED} ~ Line: {count}", end="\r")
 
 
+def handle_output(data: dict):
+    """
+    Handles the output of the JSON data
+    """
+
+    lindex(data).pprint()
+    input()
+
+
 FILE_EXTENSION = ".zst"
 FILE_SPECIFIED = ""  # Current Filename
 
@@ -102,7 +109,7 @@ DATA_URL = "https://database.lichess.org/standard/"
 
 if __name__ == "__main__":
 
-    urls = get_network_filenames()
+    urls = get_network_filenames()[::-1]
     AMNT_OF_FILES = len(urls)
 
     # files = get_filenames()
@@ -114,5 +121,3 @@ if __name__ == "__main__":
 
         load_file(url=url, method=method)
         print()
-        # print()
-        # exit()
