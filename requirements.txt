@@ -1,3 +1,5 @@
 zstandard
 lindex
+
 requests
+lxml
