@@ -2,6 +2,8 @@
 
 # from tis_chessin_stats import test_func  # This import is for if the rust version if working
 
+import pandas as pd
+
 import io
 import json
 
@@ -11,6 +13,7 @@ import requests
 from sys import argv
 from glob import glob
 from re import findall as re
+
 from Lindex import lindex
 import zstandard as zstd
 
@@ -44,7 +47,16 @@ def load_file(url: str, method):
     Loads the file in (only sections of the file at a time)
     """
 
+    def get_df_from_dict(data: dict) -> pd.DataFrame:
+        """
+        Converts from a dictionary to pandas dataframe
+        """
+
+        return pd.DataFrame({i: [data[i]] for i in data})
+
+
     count = 0
+    full_count = 0
     move_index = "Moves"  # The dict index of the moves of the game
     show_lines = 0
 
@@ -56,15 +68,28 @@ def load_file(url: str, method):
 
     output = dict()
 
+    df = pd.DataFrame({k: [] for k in ATTRIBUTES})
+
+    # Goes through each line from the downloaded stream
     for line in text_stream:
+
 
         line = line.strip()
 
         if line == "" and move_index in output:
 
-            handle_output(output)
-            input()
+            df = pd.concat([df, get_df_from_dict(output)], ignore_index=True)
+
+            count += 1
+            full_count += 1
+
+            if count > ENTRIES_PER_OUTPUT:
+                df.to_csv(f"{url.lstrip(DATA_URL)}_#{full_count}.csv", encoding="utf-8")
+                df = pd.DataFrame({k: [] for k in ATTRIBUTES})  # Clears dataframe
+                count = 0
+
             output = dict()
+
             continue
 
         # Parses pgn files
@@ -75,7 +100,7 @@ def load_file(url: str, method):
 
         output[move_index] = line
 
-    handle_lines(line, count, last=True)
+    df.to_csv(f"{url.lstrip(DATA_URL)}_#{full_count}.csv", encoding="utf-8")
 
 
 def handle_lines(line: str, count, last = False):
@@ -89,30 +114,22 @@ def handle_lines(line: str, count, last = False):
         print(f" - [File: {CURRENT_FILE_IDX + 1} / {AMNT_OF_FILES}] Filename: {FILE_SPECIFIED} ~ Line: {count}", end="\r")
 
 
-def handle_output(data: dict):
-    """
-    Handles the output of the JSON data
-    """
-
-    lindex(data).pprint()
-    input()
-
-
 FILE_EXTENSION = ".zst"
 FILE_SPECIFIED = ""  # Current Filename
 
 AMNT_OF_FILES = 0  # Total Amount of Files
 CURRENT_FILE_IDX = 0  # Current File Index
 
+ENTRIES_PER_OUTPUT = 100000
+
 DATA_URL = "https://database.lichess.org/standard/"
+OUT_FOLDER = "data"
 
 
 if __name__ == "__main__":
 
     urls = get_network_filenames()[::-1]
     AMNT_OF_FILES = len(urls)
-
-    # files = get_filenames()
 
     method = handle_lines
     for i, url in enumerate(urls):
@@ -121,3 +138,4 @@ if __name__ == "__main__":
 
         load_file(url=url, method=method)
         print()
+        break

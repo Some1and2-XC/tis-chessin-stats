@@ -1,4 +1,5 @@
 zstandard
+pandas
 lindex
 
 requests
