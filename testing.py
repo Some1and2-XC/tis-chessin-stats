@@ -5,6 +5,7 @@
 import pandas as pd
 
 import io
+import os
 import json
 
 import lxml.html
@@ -83,8 +84,12 @@ def load_file(url: str, method):
             count += 1
             full_count += 1
 
-            if count > ENTRIES_PER_OUTPUT:
-                df.to_csv(f"{url.lstrip(DATA_URL)}_#{full_count}.csv", encoding="utf-8")
+            if count >= ENTRIES_PER_OUTPUT:
+                filename = f"{url.lstrip(DATA_URL)}_#{full_count}.csv"
+                df.to_csv(
+                    os.path.join(OUT_FOLDER, filename),
+                    encoding="utf-8")
+                print(f" - Wrote file: '{filename}'", end="\r")
                 df = pd.DataFrame({k: [] for k in ATTRIBUTES})  # Clears dataframe
                 count = 0
 
@@ -120,7 +125,7 @@ FILE_SPECIFIED = ""  # Current Filename
 AMNT_OF_FILES = 0  # Total Amount of Files
 CURRENT_FILE_IDX = 0  # Current File Index
 
-ENTRIES_PER_OUTPUT = 100000
+ENTRIES_PER_OUTPUT = 10000
 
 DATA_URL = "https://database.lichess.org/standard/"
 OUT_FOLDER = "data"
