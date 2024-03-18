@@ -122,7 +122,7 @@ FILE_SPECIFIED = ""  # Current Filename
 AMNT_OF_FILES = 0  # Total Amount of Files
 CURRENT_FILE_IDX = 0  # Current File Index
 
-ENTRIES_PER_OUTPUT = os.environ["BATCH_SIZE"]
+ENTRIES_PER_OUTPUT = int(os.environ["BATCH_SIZE"])
 DATA_URL = os.environ["DATA_URL"]
 OUT_FOLDER = os.environ["DATA_DIR"]
 
