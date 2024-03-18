@@ -8,8 +8,9 @@ from glob import glob
 from os import path, environ
 
 directory = environ["DATA_DIR"]  # The folder that holds the CSV files
-data_file_meta = "dbo.Files"  # The name of the table the meta data for which files were added
-table_name = "dbo.Games"  # The database table to put the data into
+
+table_name = os.environ["DATA_DB_GAMES"]  # The name of the table the meta data for which files were added
+data_file_meta = os.environ["DATA_DB_FILENAMES"]  # The database table to put the data into
 
 files = glob(path.join(directory, "*.csv"))  # Gets a list of directories for the CSVs
 

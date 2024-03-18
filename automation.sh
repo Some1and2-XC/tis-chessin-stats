@@ -3,6 +3,10 @@
 # Sets Environment Variables
 set -a
 
+DATA_DB = "Lichess"
+DATA_DB_GAMES = "dbo.Games"
+DATA_DB_FILENAMES = "dbo.Files"
+
 DATA_DIR = "data"
 BATCH_SIZE = 10000
 DATA_URL = "https://database.lichess.org/standard/"

@@ -1,4 +1,4 @@
-CREATE TABLE Games (
+CREATE TABLE Games IF NOT EXISTS (
     [Event] VARCHAR(255),
     [Site] VARCHAR(255),
     [White] VARCHAR(255),
@@ -21,6 +21,6 @@ CREATE TABLE Games (
     [BlackTitle] VARCHAR(255)
 );
 
-CREATE TABLE Files (
+CREATE TABLE Files IF NOT EXISTS (
     [filename] VARCHAR(255) PRIMARY KEY
 );
