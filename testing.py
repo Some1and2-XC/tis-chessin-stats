@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 
-# from tis_chessin_stats import test_func  # This import is for if the rust version if working
-
 import pandas as pd
 
 import io
 import os
-import json
 
 import lxml.html
 import requests
