@@ -5,9 +5,9 @@ Python file for making a SQL file for importing data
 """
 
 from glob import glob
-from os import path
+from os import path, environ
 
-directory = "data"  # The folder that holds the CSV files
+directory = environ["DATA_DIR"]  # The folder that holds the CSV files
 data_file_meta = "dbo.Files"  # The name of the table the meta data for which files were added
 table_name = "dbo.Games"  # The database table to put the data into
 

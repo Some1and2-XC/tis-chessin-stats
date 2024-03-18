@@ -122,11 +122,9 @@ FILE_SPECIFIED = ""  # Current Filename
 AMNT_OF_FILES = 0  # Total Amount of Files
 CURRENT_FILE_IDX = 0  # Current File Index
 
-ENTRIES_PER_OUTPUT = 10000
-
-DATA_URL = "https://database.lichess.org/standard/"
-OUT_FOLDER = "data"
-
+ENTRIES_PER_OUTPUT = os.environ["BATCH_SIZE"]
+DATA_URL = os.environ["DATA_URL"]
+OUT_FOLDER = os.environ["DATA_DIR"]
 
 if __name__ == "__main__":
 
