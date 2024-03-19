@@ -2,7 +2,7 @@ zstandard
 pandas
 lindex
 
-pgn_parser
+chess
 
 requests
 lxml
