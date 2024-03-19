@@ -2,5 +2,7 @@ zstandard
 pandas
 lindex
 
+pgn_parser
+
 requests
 lxml

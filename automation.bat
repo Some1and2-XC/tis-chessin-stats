@@ -6,7 +6,7 @@ SET DATA_DB=test_db
 SET DATA_DB_GAMES=dbo.Games
 SET DATA_DB_FILENAMES=dbo.Files
 
-SET DATA_DIR=data_2
+SET DATA_DIR=data
 SET BATCH_SIZE=10000
 SET DATA_URL=https://database.lichess.org/standard/
 
