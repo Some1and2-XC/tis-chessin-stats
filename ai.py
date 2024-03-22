@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 import pandas as pd
+import xgboost as xgb
+
 import os
 import io
 import random
-import asyncio
 import pickle
 import time
 
@@ -29,7 +30,7 @@ def load_data() -> pd.DataFrame:
         if type(df) == None:
             df = pd.read_csv(file)
         else:
-            df = pd.concat([df, pd.read_csv(file)], ignore_index=True)
+            df = pd.concat([df, pd.read_csv(file).head(200)], ignore_index=True)
 
     df = parse_moves(df)
 
@@ -78,35 +79,68 @@ def parse_moves(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def make_model():
+def make_model(df: pd.DataFrame):
     """
     Function for creating an AI model
     """
+    
+    ECO_codes = ["?"]
+
+    for code in "ABCDE":
+        for number in range(100):
+            ECO_codes.append(f"{code}{number:02d}")
+    
+    ECO_codes = {
+        value: int(index)
+        for (index, value) in enumerate(ECO_codes)
+    }
+
+    results = {
+        "0-1": 0,
+        "1-0": 1,
+        "1/2-1/2": 2,
+        "*": 3,
+    }
+
+    df["ECO"] = df["ECO"].map(ECO_codes)
+    df["Result"] = df["Result"].map(results)
+    df = df[["WhiteElo", "BlackElo", "ECO", "MoveN", "Eval", "Result"]]
+
+    print(df)
 
 
-CHESS_AI_DEPTH = 16  # Depth ~16 takes ~0.1s
+CHESS_AI_DEPTH = 9  # Depth ~16 takes ~0.1s
 DEVELOPMENT = False
 
 
 if __name__ == "__main__":
     os.environ["DATA_DIR"] = "data"
-    engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci("./uci/stockfish-windows-x86-64-avx2.exe")
-
-    print("Loading Data... (This might take a while)")
-    start = time.perf_counter()
-    data = load_data()
-    print(f"Time Elapsed: {time.perf_counter() - start:.5f}s")
-
-    print("Saving Files!")
-    engine.quit()
-    print(" - Engine Saved!")
 
     if DEVELOPMENT:
-        filename = "dataset_dev.pkl"
-    else:
-        filename = "dataset.pkl"
 
-    with open(filename, "wb") as handle:
-        pickle.dump(data, handle)
-    print(f" - Dataset Saved! ('{filename}')")
+        engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci("./uci/stockfish-windows-x86-64-avx2.exe")
+
+        print("Loading Data... (This might take a while)")
+        start = time.perf_counter()
+        data = load_data()
+        print(f"Time Elapsed: {time.perf_counter() - start:.5f}s")
+
+        print("Saving Files!")
+        engine.quit()
+        print(" - Engine Saved!")
+
+        if DEVELOPMENT:
+            filename = "dataset_dev.pkl"
+        else:
+            filename = "dataset.pkl"
+
+        with open(filename, "wb") as handle:
+            pickle.dump(data, handle)
+        print(f" - Dataset Saved! ('{filename}')")
+    
+    with open("dataset_dev.pkl", "rb") as f:
+        data = pickle.loads(f.read())
+
+    make_model(data)
+
     print("Finished!")

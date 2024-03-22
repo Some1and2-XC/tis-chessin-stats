@@ -1,6 +1,7 @@
 zstandard
 pandas
 lindex
+xgboost
 
 chess
 

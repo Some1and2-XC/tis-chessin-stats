@@ -11,20 +11,22 @@ SET BATCH_SIZE=10000
 SET DATA_URL=https://database.lichess.org/standard/
 
 :: Setups Database
-sqlcmd -d %DATA_DB% -i %SCHEMA%
+:: sqlcmd -d %DATA_DB% -i %SCHEMA%
 
 :: Downloads the Data
 ECHO Downloading Data
-:: download.py
+python download.py
 ECHO Download Finished!
 
 :: Makes the SQL Script
-write_sql.py > tmp_file
+:: write_sql.py > tmp_file
 ECHO Made SQL Script!
 
 :: Adds the data to the DB
-sqlcmd -d %DATA_DB% -i tmp_file
-del tmp_file
+:: sqlcmd -d %DATA_DB% -i tmp_file
+:: del tmp_file
+
+:: Makes AI things
 
 ECHO FINISHED!
 PAUSE
