@@ -157,14 +157,14 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
 
 
 CHESS_AI_DEPTH = 16  # Depth ~16 takes ~0.1s
-DEVELOPMENT = True
+DEVELOPMENT = False
 OUTPUT = "output"
 
 
 if __name__ == "__main__":
     os.environ["DATA_DIR"] = "data"
 
-    if DEVELOPMENT:
+    if not DEVELOPMENT:
 
         engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci("./uci/stockfish-windows-x86-64-avx2.exe")
 

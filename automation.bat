@@ -26,7 +26,7 @@ ECHO Made SQL Script!
 :: del tmp_file
 
 :: Makes AI things
-ECHO Creating AI Dataset & Model
+ECHO Creating AI Dataset ^& Model
 python ai.py
 
 ECHO FINISHED!
