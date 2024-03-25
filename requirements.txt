@@ -1,7 +1,9 @@
 zstandard
 pandas
 lindex
+
 xgboost
+scikit-learn    
 
 chess
 

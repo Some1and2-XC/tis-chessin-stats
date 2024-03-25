@@ -79,12 +79,19 @@ def parse_moves(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def make_model(df: pd.DataFrame):
+def make_model(df: pd.DataFrame, test_size: float = 0.1):
     """
     Function for creating an AI model
+
+    df is the dataframe with all the chess data inside
+    test_size is the portion of the dataset that becomes test data
     """
-    
-    ECO_codes = ["?"]
+
+    import sklearn.model_selection as sk
+    import numpy as np
+
+    # Casts ECO codes to int
+    ECO_codes = ["?"]  # Sets a default eco code
 
     for code in "ABCDE":
         for number in range(100):
@@ -94,23 +101,35 @@ def make_model(df: pd.DataFrame):
         value: int(index)
         for (index, value) in enumerate(ECO_codes)
     }
+    df["ECO"] = df["ECO"].map(ECO_codes)
 
+    # Casts Results to int
     results = {
         "0-1": 0,
         "1-0": 1,
         "1/2-1/2": 2,
         "*": 3,
     }
-
-    df["ECO"] = df["ECO"].map(ECO_codes)
     df["Result"] = df["Result"].map(results)
-    df = df[["WhiteElo", "BlackElo", "ECO", "MoveN", "Eval", "Result"]]
 
-    print(df)
+    # Splits the labels and attributes
+    x = df[["WhiteElo", "BlackElo", "ECO", "MoveN", "Eval"]]
+    y = df[["Result"]]
+
+    # x_train, x_test, y_train, y_test = sk.train_test_split(x, y, test_size=test_size)
+
+    model = xgb.XGBClassifier()
+    cv = sk.RepeatedStratifiedKFold(n_splits=3, n_repeats=10, random_state=1)
+    n_scores = sk.cross_val_score(model, x, y, scoring="accuracy", cv=cv, n_jobs=-1)
+
+    print(f"Accuracy : {np.mean(n_scores):.3f}% ({np.std(n_scores):.3f} std)")
+
+    return model
 
 
 CHESS_AI_DEPTH = 9  # Depth ~16 takes ~0.1s
 DEVELOPMENT = False
+OUTPUT = "output"
 
 
 if __name__ == "__main__":
@@ -138,9 +157,9 @@ if __name__ == "__main__":
             pickle.dump(data, handle)
         print(f" - Dataset Saved! ('{filename}')")
     
-    with open("dataset_dev.pkl", "rb") as f:
+    with open("dataset.pkl", "rb") as f:
         data = pickle.loads(f.read())
 
-    make_model(data)
+    model = make_model(data)
 
     print("Finished!")
