@@ -18,7 +18,6 @@ ECHO Downloading Data
 python download.py
 ECHO Download Finished!
 
-:: Makes the SQL Script
 :: write_sql.py > tmp_file
 ECHO Made SQL Script!
 
@@ -27,6 +26,8 @@ ECHO Made SQL Script!
 :: del tmp_file
 
 :: Makes AI things
+ECHO Creating AI Dataset & Model
+python ai.py
 
 ECHO FINISHED!
 PAUSE

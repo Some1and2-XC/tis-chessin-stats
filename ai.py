@@ -156,8 +156,8 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
     return model
 
 
-CHESS_AI_DEPTH = 9  # Depth ~16 takes ~0.1s
-DEVELOPMENT = False
+CHESS_AI_DEPTH = 16  # Depth ~16 takes ~0.1s
+DEVELOPMENT = True
 OUTPUT = "output"
 
 
