@@ -116,13 +116,42 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
     x = df[["WhiteElo", "BlackElo", "ECO", "MoveN", "Eval"]]
     y = df[["Result"]]
 
-    # x_train, x_test, y_train, y_test = sk.train_test_split(x, y, test_size=test_size)
 
+    """
+    # K Fold Validation
+    # Using sk libs for training means I can't use internal model.save_model() method
     model = xgb.XGBClassifier()
+
     cv = sk.RepeatedStratifiedKFold(n_splits=3, n_repeats=10, random_state=1)
-    n_scores = sk.cross_val_score(model, x, y, scoring="accuracy", cv=cv, n_jobs=-1)
+    n_scores = sk.cross_val_score(model, x_train, y_train, scoring="accuracy", cv=cv, n_jobs=-1)
 
     print(f"Accuracy : {np.mean(n_scores):.3f}% ({np.std(n_scores):.3f} std)")
+    """
+
+    # https://mljar.com/blog/xgboost-save-load-python/
+    # Splits the data into test & training
+    x_train, x_test, y_train, y_test = sk.train_test_split(x, y, test_size=test_size)
+    train = xgb.DMatrix(x_train, y_train)
+    test = xgb.DMatrix(x_test, y_test)
+
+    # Initializes the model
+    model = xgb.XGBRegressor(
+        n_estimators=500,
+        max_depth=6,
+        learning_rate=0.01,
+        early_stopping_rounds=20,
+    )
+
+    # Tries to fit the data
+    model.fit(x_train, y_train,
+        eval_set=[(x_train, y_train), (x_test, y_test)]
+    )
+
+    res = model.predict(x_test, iteration_range=(0, model.best_iteration + 1))
+    print(res)
+
+    print("Best Iteration:", model.best_iteration)
+
 
     return model
 
@@ -161,5 +190,7 @@ if __name__ == "__main__":
         data = pickle.loads(f.read())
 
     model = make_model(data)
+
+    model.save_model(os.path.join(OUTPUT, "model.json"))
 
     print("Finished!")
