@@ -182,11 +182,11 @@ if __name__ == "__main__":
         else:
             filename = "dataset.pkl"
 
-        with open(filename, "wb") as handle:
+        with open(os.path.join(OUTPUT, filename), "wb") as handle:
             pickle.dump(data, handle)
         print(f" - Dataset Saved! ('{filename}')")
     
-    with open("dataset.pkl", "rb") as f:
+    with open(os.path.join(OUTPUT, "dataset.pkl"), "rb") as f:
         data = pickle.loads(f.read())
 
     model = make_model(data)
