@@ -1,5 +1,6 @@
 zstandard
 pandas
+pyodbc
 lindex
 
 xgboost

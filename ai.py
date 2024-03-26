@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pandas as pd
+import pyodbc
 import xgboost as xgb
 
 import os
@@ -19,10 +20,39 @@ from glob import glob
 
 def load_data() -> pd.DataFrame:
     """
+    Function for loading in the data from the database
+    """
+
+    con_str = f"\
+        DRIVER={{ODBC Driver 17 for SQL Server}}; \
+        SERVER=localhost; \
+        DATABASE={os.environ['DATA_DB']}; \
+        Trusted_connection=yes; \
+    "
+
+    con = pyodbc.connect(con_str)
+    cur = con.cursor()
+
+    return pd.read_sql_query(
+        sql="""
+            SELECT TOP(?)
+                WhiteElo,
+                BlackElo,
+                ECO,
+                Result,
+                Moves
+            FROM Games
+        """,
+        params=(AMNT_OF_GAMES,),
+        con=con,
+    )
+
+def load_dev_data() -> pd.DataFrame:
+    """
     Function for loading in the data from the data folder
     """
 
-    # Initializes DataFrame`
+    # Initializes DataFrame
     data_folder = os.environ["DATA_DIR"]
     df = None
     for file in glob(os.path.join(data_folder, "*.csv")):
@@ -87,6 +117,7 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
     test_size is the portion of the dataset that becomes test data
     """
 
+
     def get_one_hot(col, values: dict) -> pd.DataFrame:
 
         """
@@ -103,6 +134,7 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
         df = pd.DataFrame(arr, columns=values.keys())
 
         return df
+
 
     import sklearn.model_selection as sk
     import numpy as np
@@ -126,17 +158,17 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
     for code in "ABCDE":
         for number in range(100):
             ECO_codes.append(f"{code}{number:02d}")
-    
     ECO_codes = {
         value: int(index)
         for (index, value) in enumerate(ECO_codes)
     }
+
     df["ECO"] = df["ECO"].map(ECO_codes)
     eco_codes = get_one_hot(df["ECO"], ECO_codes)
     df = pd.concat([df, eco_codes], axis=1)
 
     # Removes the unwanted columns
-    df.drop(columns=["ECO"])  # Drops original eco code column and result column
+    df = df.drop(columns=["ECO"])  # Drops original eco code column and result column
 
     """
     # K Fold Validation
@@ -164,49 +196,62 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
     )
 
     res = model.predict(x_test, iteration_range=(0, model.best_iteration + 1))
-    # print(res)
 
     print("Best Iteration:", model.best_iteration)
-
 
     return model
 
 
+# Local Program Variables
 CHESS_AI_DEPTH = 16  # Depth ~16 takes ~0.1s
 DEVELOPMENT = False
-OUTPUT = "output"
+
+# Sets values if not set in env
+default_config = {
+    "AI_OUTPUT": "output",
+    "DATA_DB": "Lichess",
+    "DATA_DIR": "data",
+    "AMNT_OF_GAMES": "4",
+    "CHESS_ENGINE": "./uci/stockfish-windows-x86-64-avx2.exe",
+}
+
+for k, v in default_config.values():
+    if k not in os.environ:
+        os.environ[k] = v
 
 
 if __name__ == "__main__":
-    os.environ["DATA_DIR"] = "data"
 
-    if DEVELOPMENT:
+    # Start the chess engine
+    engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci(os.environ["CHESS_ENGINE"])
 
-        engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci("./uci/stockfish-windows-x86-64-avx2.exe")
+    # Loads in the dataset and adds attributes
+    print("Loading Data... (This might take a while)")
+    start = time.perf_counter()
 
-        print("Loading Data... (This might take a while)")
-        start = time.perf_counter()
-        data = load_data()
-        print(f"Time Elapsed: {time.perf_counter() - start:.5f}s")
+    if DEVELOPMENT: data = load_dev_data()
+    else: data = load_data()
 
-        print("Saving Files!")
-        engine.quit()
-        print(" - Engine Saved!")
+    print(f"Time Elapsed: {time.perf_counter() - start:.5f}s")
 
-        if DEVELOPMENT:
-            filename = "dataset_dev.pkl"
-        else:
-            filename = "dataset.pkl"
+    print("Saving Files!")
+    engine.quit()
+    print(" - Engine Saved!")
 
-        with open(os.path.join(OUTPUT, filename), "wb") as handle:
-            pickle.dump(data, handle)
-        print(f" - Dataset Saved! ('{filename}')")
-    
-    with open(os.path.join(OUTPUT, "dataset.pkl"), "rb") as f:
+    if DEVELOPMENT: filename = "dataset_dev"
+    else: filename = "dataset"
+
+    # Writes Training Dataset
+    with open(os.path.join(os.environ["AI_OUTPUT"], filename + ".df.pkl), "wb") as handle:
+        pickle.dump(data, handle)
+    print(f" - Dataset Saved! ('{filename}')")
+
+    # Reads Training Dataset
+    with open(os.path.join(os.environ["AI_OUTPUT"], "dataset.df.pkl"), "rb") as f:
         data = pickle.loads(f.read())
-
+ 
     model = make_model(data)
 
-    # model.save_model(os.path.join(OUTPUT, "model.json"))
+    # model.save_model(os.path.join(os.environ["AI_OUTPUT"], "model.json"))
 
     print("Finished!")
