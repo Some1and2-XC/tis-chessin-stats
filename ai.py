@@ -242,7 +242,7 @@ if __name__ == "__main__":
     else: filename = "dataset"
 
     # Writes Training Dataset
-    with open(os.path.join(os.environ["AI_OUTPUT"], filename + ".df.pkl), "wb") as handle:
+    with open(os.path.join(os.environ["AI_OUTPUT"], filename + ".df.pkl"), "wb") as handle:
         pickle.dump(data, handle)
     print(f" - Dataset Saved! ('{filename}')")
 
