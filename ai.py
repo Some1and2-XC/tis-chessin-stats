@@ -30,6 +30,11 @@ def load_data() -> pd.DataFrame:
         Trusted_connection=yes; \
     "
 
+    if os.environ["AMNT_OF_GAMES"].isdigit():
+        AMNT_OF_GAMES = int(os.environ["AMNT_OF_GAMES"])
+    else:
+        ValueError(f"Can't parse 'int' from '{os.environ["AMNT_OF_GAMES"]}'. (ENV::AMNT_OF_GAMES)")
+
     con = pyodbc.connect(con_str)
     cur = con.cursor()
 
@@ -61,8 +66,6 @@ def load_dev_data() -> pd.DataFrame:
             df = pd.read_csv(file)
         else:
             df = pd.concat([df, pd.read_csv(file).head(200)], ignore_index=True)
-
-    df = parse_moves(df)
 
     return df
 
@@ -215,7 +218,7 @@ default_config = {
     "CHESS_ENGINE": "./uci/stockfish-windows-x86-64-avx2.exe",
 }
 
-for k, v in default_config.values():
+for k, v in default_config.items():
     if k not in os.environ:
         os.environ[k] = v
 
@@ -231,6 +234,8 @@ if __name__ == "__main__":
 
     if DEVELOPMENT: data = load_dev_data()
     else: data = load_data()
+
+    data = parse_moves(data)
 
     print(f"Time Elapsed: {time.perf_counter() - start:.5f}s")
 

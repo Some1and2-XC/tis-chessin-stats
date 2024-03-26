@@ -8,4 +8,5 @@ __pycache__/
 *.csv
 *.pkl
 *.exe
+*.swp
 model.json

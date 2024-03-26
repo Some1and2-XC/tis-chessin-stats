@@ -10,6 +10,8 @@ SET DATA_DIR=data
 SET BATCH_SIZE=10000
 SET DATA_URL=https://database.lichess.org/standard/
 
+pip install -r requirements.txt
+
 :: Setups Database
 :: sqlcmd -d %DATA_DB% -i %SCHEMA%
 
