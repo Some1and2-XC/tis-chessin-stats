@@ -15,9 +15,12 @@ data_file_meta = environ["DATA_DB_FILENAMES"]  # The database table to put the d
 
 files = glob(path.join(directory, "*.csv"))  # Gets a list of directories for the CSVs
 
-config = "\n".join([
-    f"ALTER DATABASE {database} COLLATE SQL_Latin1_General_CP1_CS_AS;",
-    "GO",
+config = "".join(
+    line + "\nGO\n" for line in
+    [
+    f"ALTER DATABASE [{database}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;",
+    f"ALTER DATABASE [{database}] COLLATE SQL_Latin1_General_CP1_CS_AS;",
+    f"ALTER DATABASE [{database}] SET MULTI_USER; ",
 ])
 
 out_txt = [
