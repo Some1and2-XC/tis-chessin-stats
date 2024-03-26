@@ -9,10 +9,16 @@ from os import path, environ
 
 directory = environ["DATA_DIR"]  # The folder that holds the CSV files
 
+database = environ["DATA_DB"]
 table_name = environ["DATA_DB_GAMES"]  # The name of the table the meta data for which files were added
 data_file_meta = environ["DATA_DB_FILENAMES"]  # The database table to put the data into
 
 files = glob(path.join(directory, "*.csv"))  # Gets a list of directories for the CSVs
+
+config = "\n".join([
+    f"ALTER DATABASE '{database}' COLLATE SQL_Latin1_General_CP1_CS_AS;",
+    "GO",
+])
 
 out_txt = [
 f"""
@@ -33,4 +39,7 @@ GO
     for file in files
 ]
 
-print("".join(out_txt))
+print(
+    config + \
+    "".join(out_txt)
+)
