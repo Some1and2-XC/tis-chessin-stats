@@ -2,7 +2,7 @@ IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='games' and xtype='U')
 	CREATE TABLE Games (
         [ID] BIGINT,
 		[Event] VARCHAR(255),
-		[Site] VARCHAR(255),
+		[Site] VARCHAR(255) PRIMARY KEY,
 		[White] VARCHAR(255),
 		[Black] VARCHAR(255),
 		[Result] VARCHAR(255),
