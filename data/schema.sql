@@ -2,7 +2,7 @@ IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='games' and xtype='U')
 	CREATE TABLE Games (
         [ID] BIGINT,
 		[Event] VARCHAR(255),
-		[Site] VARCHAR(255) PRIMARY KEY,
+		[Site] VARCHAR(255) COLLATE SQL_Latin1_General_CP1_CS_AS PRIMARY KEY,
 		[White] VARCHAR(255),
 		[Black] VARCHAR(255),
 		[Result] VARCHAR(255),
