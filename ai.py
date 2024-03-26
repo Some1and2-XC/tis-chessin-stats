@@ -87,10 +87,40 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
     test_size is the portion of the dataset that becomes test data
     """
 
+    def get_one_hot(col, values: dict) -> pd.DataFrame:
+
+        """
+        Gets one hot encoded np array for values
+        the df should be remaped with values before calling this function
+        """
+
+        # Initializes the array
+        arr = np.zeros((len(col), len(values)))
+
+        # Sets the associated value for each item
+        arr[np.arange(len(col)), col] = 1
+
+        df = pd.DataFrame(arr, columns=values.keys())
+
+        return df
+
     import sklearn.model_selection as sk
     import numpy as np
 
-    # Casts ECO codes to int
+    # One-hot encodes results
+    results = {
+        "0-1": 0,
+        "1-0": 1,
+        "1/2-1/2": 2,
+        "*": 3,
+    }
+    df["Result"] = df["Result"].map(results)
+    y = get_one_hot(df["Result"], results)
+
+    # initializes the df with less attributes
+    df = df[["WhiteElo", "BlackElo", "ECO", "MoveN", "Eval"]]
+
+    # One-hot encodes eco codes
     ECO_codes = ["?"]  # Sets a default eco code
 
     for code in "ABCDE":
@@ -102,35 +132,21 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
         for (index, value) in enumerate(ECO_codes)
     }
     df["ECO"] = df["ECO"].map(ECO_codes)
+    eco_codes = get_one_hot(df["ECO"], ECO_codes)
+    df = pd.concat([df, eco_codes], axis=1)
 
-    # Casts Results to int
-    results = {
-        "0-1": 0,
-        "1-0": 1,
-        "1/2-1/2": 2,
-        "*": 3,
-    }
-    df["Result"] = df["Result"].map(results)
-
-    # Splits the labels and attributes
-    x = df[["WhiteElo", "BlackElo", "ECO", "MoveN", "Eval"]]
-    y = df[["Result"]]
-
+    # Removes the unwanted columns
+    df.drop(columns=["ECO"])  # Drops original eco code column and result column
 
     """
     # K Fold Validation
     # Using sk libs for training means I can't use internal model.save_model() method
-    model = xgb.XGBClassifier()
-
-    cv = sk.RepeatedStratifiedKFold(n_splits=3, n_repeats=10, random_state=1)
-    n_scores = sk.cross_val_score(model, x_train, y_train, scoring="accuracy", cv=cv, n_jobs=-1)
-
     print(f"Accuracy : {np.mean(n_scores):.3f}% ({np.std(n_scores):.3f} std)")
     """
 
     # https://mljar.com/blog/xgboost-save-load-python/
     # Splits the data into test & training
-    x_train, x_test, y_train, y_test = sk.train_test_split(x, y, test_size=test_size)
+    x_train, x_test, y_train, y_test = sk.train_test_split(df, y, test_size=test_size)
     train = xgb.DMatrix(x_train, y_train)
     test = xgb.DMatrix(x_test, y_test)
 
@@ -148,7 +164,7 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
     )
 
     res = model.predict(x_test, iteration_range=(0, model.best_iteration + 1))
-    print(res)
+    # print(res)
 
     print("Best Iteration:", model.best_iteration)
 
@@ -164,7 +180,7 @@ OUTPUT = "output"
 if __name__ == "__main__":
     os.environ["DATA_DIR"] = "data"
 
-    if not DEVELOPMENT:
+    if DEVELOPMENT:
 
         engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci("./uci/stockfish-windows-x86-64-avx2.exe")
 
@@ -191,6 +207,6 @@ if __name__ == "__main__":
 
     model = make_model(data)
 
-    model.save_model(os.path.join(OUTPUT, "model.json"))
+    # model.save_model(os.path.join(OUTPUT, "model.json"))
 
     print("Finished!")
