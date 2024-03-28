@@ -237,7 +237,7 @@ if __name__ == "__main__":
 
     DEVELOPMENT = (args.development == "y")
 
-    if args.make_dataset:
+    if args.make_dataset == "y":
         # Start the chess engine
         engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci(os.environ["CHESS_ENGINE"])
 
@@ -268,10 +268,10 @@ if __name__ == "__main__":
     with open(os.path.join(os.environ["AI_OUTPUT"], "dataset.df.pkl"), "rb") as f:
         data = pickle.loads(f.read())
  
-    if args.model_generate:
+    if args.model_generate == "y":
         model = make_model(data)
 
-        if args.model_save:
+        if args.model_save == "y":
             model.save_model(os.path.join(os.environ["AI_OUTPUT"], f"{args.model_filename}.json"))
 
     print("Finished!")
