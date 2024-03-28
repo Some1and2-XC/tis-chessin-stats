@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import argparse
+
 import pandas as pd
 import pyodbc
 import xgboost as xgb
@@ -207,7 +209,6 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
 
 # Local Program Variables
 CHESS_AI_DEPTH = 16  # Depth ~16 takes ~0.1s
-DEVELOPMENT = False
 
 # Sets values if not set in env
 default_config = {
@@ -225,38 +226,52 @@ for k, v in default_config.items():
 
 if __name__ == "__main__":
 
-    # Start the chess engine
-    engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci(os.environ["CHESS_ENGINE"])
+    parser = argparse.ArgumentParser("CLI for managing the AI for the Chess Data Project")
+    parser.add_argument("--make-dataset", default="n", choices=["y", "n"])
+    parser.add_argument("--model-generate", default="n", choices=["y", "n"])
+    parser.add_argument("--model-save", default="y", choices=["y", "n"])
+    parser.add_argument("--model-filename", default="model")
+    parser.add_argument("--development", default="n", choices=["y", "n"])
 
-    # Loads in the dataset and adds attributes
-    print("Loading Data... (This might take a while)")
-    start = time.perf_counter()
+    args = parser.parse_args()
 
-    if DEVELOPMENT: data = load_dev_data()
-    else: data = load_data()
+    DEVELOPMENT = (args.development == "y")
 
-    data = parse_moves(data)
+    if args.make_dataset:
+        # Start the chess engine
+        engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci(os.environ["CHESS_ENGINE"])
 
-    print(f"Time Elapsed: {time.perf_counter() - start:.5f}s")
+        # Loads in the dataset and adds attributes
+        print("Loading Data... (This might take a while)")
+        start = time.perf_counter()
 
-    print("Saving Files!")
-    engine.quit()
-    print(" - Engine Saved!")
+        if DEVELOPMENT: data = load_dev_data()
+        else: data = load_data()
 
-    if DEVELOPMENT: filename = "dataset_dev"
-    else: filename = "dataset"
+        data = parse_moves(data)
 
-    # Writes Training Dataset
-    with open(os.path.join(os.environ["AI_OUTPUT"], filename + ".df.pkl"), "wb") as handle:
-        pickle.dump(data, handle)
-    print(f" - Dataset Saved! ('{filename}')")
+        print(f"Time Elapsed: {time.perf_counter() - start:.5f}s")
+
+        print("Saving Files!")
+        engine.quit()
+        print(" - Engine Closed!")
+
+        if DEVELOPMENT: filename = "dataset_dev"
+        else: filename = "dataset"
+
+        # Writes Training Dataset
+        with open(os.path.join(os.environ["AI_OUTPUT"], filename + ".df.pkl"), "wb") as handle:
+            pickle.dump(data, handle)
+        print(f" - Dataset Saved! ('{filename}')")
 
     # Reads Training Dataset
     with open(os.path.join(os.environ["AI_OUTPUT"], "dataset.df.pkl"), "rb") as f:
         data = pickle.loads(f.read())
  
-    model = make_model(data)
+    if args.model_generate:
+        model = make_model(data)
 
-    # model.save_model(os.path.join(os.environ["AI_OUTPUT"], "model.json"))
+        if args.model_save:
+            model.save_model(os.path.join(os.environ["AI_OUTPUT"], f"{args.model_filename}.json"))
 
     print("Finished!")
