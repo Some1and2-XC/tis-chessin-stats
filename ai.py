@@ -221,9 +221,6 @@ CHESS_AI_DEPTH = 16  # Depth ~16 takes ~0.1s
 # Sets values if not set in env
 default_config = {
     "AI_OUTPUT": "new_output",
-    "DATA_DB": "Lichess",
-    "DATA_DIR": "new_data",
-    "AMNT_OF_GAMES": "4",
     "CHESS_ENGINE": "./uci/stockfish-windows-x86-64-avx2.exe",
 }
 
@@ -238,20 +235,27 @@ if __name__ == "__main__":
         prog="CLI for managing the AI for the Chess Data Project",
         description="",)
 
-    parser.add_argument("-d", "--make-dataset", default="none", choices=["none", "database", "files"])
-    parser.add_argument("-g", "--model-generate", action="store_true")
-    parser.add_argument("-s", "--model-save", action="store_true")
-    parser.add_argument("-f", "--model-filename", default="model")
-    parser.add_argument("-v", "--development", action="store_true")
-    parser.add_argument("-c", "--games-count", type=int)
-    parser.add_argument("--ai-depth", default=16, type=int)
+    parser.add_argument("--dataset-make", default="none", choices=["none", "database", "files"], help="Sets which data source to use")
+    parser.add_argument("--dataset-db", default="Lichess", help="Sets the database to get the data from")
+    parser.add_argument("--dataset-directory", default="data", help="Sets the directory to load the data from")
+    parser.add_argument("--games-count", type=int, help="Sets the amount of games to make the dataset from")
+
+    parser.add_argument("--model-generate", action="store_true", help="Flag that sets if the model should be generated")
+    parser.add_argument("--model-save", action="store_true", help="Flag that sets if the model should be saved")
+    parser.add_argument("--model-directory", default="data", help="Sets the directory to save the AI model in")
+    parser.add_argument("--model-filename", default="model", help="Sets the filename of the AI model")
+
+    parser.add_argument("--development", action="store_true")
+    parser.add_argument("--ai-depth", default=16, type=int, help="Sets the Depth to run the chess engine with, 16 a good choice for this. ")
 
     args = parser.parse_args()
 
     os.environ["AMNT_OF_GAMES"] = str(args.games_count)
+    os.environ["DATA_DB"] = args.dataset_db
+    os.environ["DATA_DIR"] = args.dataset_db
+    os.environ["AI_OUTPUT"] = args.model_directory
+
     CHESS_AI_DEPTH = args.ai_depth
-    print(CHESS_AI_DEPTH)
-    exit()
 
     DEVELOPMENT = args.development
 
