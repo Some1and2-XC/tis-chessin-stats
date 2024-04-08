@@ -35,7 +35,7 @@ def load_data() -> pd.DataFrame:
     if os.environ["AMNT_OF_GAMES"].isdigit():
         AMNT_OF_GAMES = int(os.environ["AMNT_OF_GAMES"])
     else:
-        ValueError(f"Can't parse 'int' from '{os.environ["AMNT_OF_GAMES"]}'. (ENV::AMNT_OF_GAMES)")
+        ValueError(f"Can't parse 'int' from '{os.environ['AMNT_OF_GAMES']}'. (ENV::AMNT_OF_GAMES)")
 
     con = pyodbc.connect(con_str)
     cur = con.cursor()
@@ -62,12 +62,20 @@ def load_dev_data() -> pd.DataFrame:
     # Initializes DataFrame
     data_folder = os.environ["DATA_DIR"]
     df = None
+
+    # Uses int() function which could error however this is suposed to be for dev data
+    amnt_of_games = int(os.environ["amnt_of_games"])
+
     for file in glob(os.path.join(data_folder, "*.csv")):
 
         if type(df) == None:
             df = pd.read_csv(file)
         else:
-            df = pd.concat([df, pd.read_csv(file).head(200)], ignore_index=True)
+            df = pd.concat([df, pd.read_csv(file)], ignore_index=True)
+
+            if len(df.index) >= amnt_of_games:
+                df = df.head(amnt_of_games)
+                break
 
     return df
 
@@ -212,9 +220,9 @@ CHESS_AI_DEPTH = 16  # Depth ~16 takes ~0.1s
 
 # Sets values if not set in env
 default_config = {
-    "AI_OUTPUT": "output",
+    "AI_OUTPUT": "new_output",
     "DATA_DB": "Lichess",
-    "DATA_DIR": "data",
+    "DATA_DIR": "new_data",
     "AMNT_OF_GAMES": "4",
     "CHESS_ENGINE": "./uci/stockfish-windows-x86-64-avx2.exe",
 }
@@ -227,17 +235,23 @@ for k, v in default_config.items():
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser("CLI for managing the AI for the Chess Data Project")
-    parser.add_argument("--make-dataset", default="n", choices=["y", "n"])
-    parser.add_argument("--model-generate", default="n", choices=["y", "n"])
-    parser.add_argument("--model-save", default="y", choices=["y", "n"])
+    parser.add_argument("--make-dataset", action="store_true")
+    parser.add_argument("--model-generate", action="store_true")
+    parser.add_argument("--model-save", action="store_true")
     parser.add_argument("--model-filename", default="model")
-    parser.add_argument("--development", default="n", choices=["y", "n"])
+    parser.add_argument("--development", action="store_true")
+    parser.add_argument("--games", type=int)
 
     args = parser.parse_args()
 
-    DEVELOPMENT = (args.development == "y")
+    os.environ["AMNT_OF_GAMES"] = str(args.games)
 
-    if args.make_dataset == "y":
+    DEVELOPMENT = args.development
+
+    if args.make_dataset:
+
+        print(f"Making Dataset with {os.environ['AMNT_OF_GAMES']} Games. ")
+
         # Start the chess engine
         engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci(os.environ["CHESS_ENGINE"])
 
@@ -246,7 +260,8 @@ if __name__ == "__main__":
         start = time.perf_counter()
 
         if DEVELOPMENT: data = load_dev_data()
-        else: data = load_data()
+        else: data = load_dev_data()
+        # else: data = load_data()
 
         data = parse_moves(data)
 
@@ -262,16 +277,17 @@ if __name__ == "__main__":
         # Writes Training Dataset
         with open(os.path.join(os.environ["AI_OUTPUT"], filename + ".df.pkl"), "wb") as handle:
             pickle.dump(data, handle)
-        print(f" - Dataset Saved! ('{filename}')")
+        print(f" - Dataset Saved! ('{filename}.df.pkl')")
 
-    # Reads Training Dataset
-    with open(os.path.join(os.environ["AI_OUTPUT"], "dataset.df.pkl"), "rb") as f:
-        data = pickle.loads(f.read())
- 
-    if args.model_generate == "y":
+    if args.model_generate:
+
+        # Reads Training Dataset
+        with open(os.path.join(os.environ["AI_OUTPUT"], "dataset.df.pkl"), "rb") as f:
+            data = pickle.loads(f.read())
+    
         model = make_model(data)
 
-        if args.model_save == "y":
+        if args.model_save:
             model.save_model(os.path.join(os.environ["AI_OUTPUT"], f"{args.model_filename}.json"))
 
-    print("Finished!")
+    print("Finished Execution! (Use `-h` for more options.)")
