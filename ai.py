@@ -234,21 +234,28 @@ for k, v in default_config.items():
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser("CLI for managing the AI for the Chess Data Project")
-    parser.add_argument("--make-dataset", action="store_true")
-    parser.add_argument("--model-generate", action="store_true")
-    parser.add_argument("--model-save", action="store_true")
-    parser.add_argument("--model-filename", default="model")
-    parser.add_argument("--development", action="store_true")
-    parser.add_argument("--games", type=int)
+    parser = argparse.ArgumentParser(
+        prog="CLI for managing the AI for the Chess Data Project",
+        description="",)
+
+    parser.add_argument("-d", "--make-dataset", default="none", choices=["none", "database", "files"])
+    parser.add_argument("-g", "--model-generate", action="store_true")
+    parser.add_argument("-s", "--model-save", action="store_true")
+    parser.add_argument("-f", "--model-filename", default="model")
+    parser.add_argument("-v", "--development", action="store_true")
+    parser.add_argument("-c", "--games-count", type=int)
+    parser.add_argument("--ai-depth", default=16, type=int)
 
     args = parser.parse_args()
 
-    os.environ["AMNT_OF_GAMES"] = str(args.games)
+    os.environ["AMNT_OF_GAMES"] = str(args.games_count)
+    CHESS_AI_DEPTH = args.ai_depth
+    print(CHESS_AI_DEPTH)
+    exit()
 
     DEVELOPMENT = args.development
 
-    if args.make_dataset:
+    if args.make_dataset != "none":
 
         print(f"Making Dataset with {os.environ['AMNT_OF_GAMES']} Games. ")
 
@@ -259,9 +266,12 @@ if __name__ == "__main__":
         print("Loading Data... (This might take a while)")
         start = time.perf_counter()
 
-        if DEVELOPMENT: data = load_dev_data()
-        else: data = load_dev_data()
-        # else: data = load_data()
+        if args.make_dataset == "database":
+            data = load_data()
+        elif args.make_dataset == "files":
+            data = load_dev_data()
+        else:
+            raise Exception(f"Option Not Found! (--make-dataset: {args.make_dataset})")
 
         data = parse_moves(data)
 
