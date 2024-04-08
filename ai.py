@@ -259,7 +259,7 @@ if __name__ == "__main__":
 
     DEVELOPMENT = args.development
 
-    if args.make_dataset != "none":
+    if args.dataset_make != "none":
 
         print(f"Making Dataset with {os.environ['AMNT_OF_GAMES']} Games. ")
 

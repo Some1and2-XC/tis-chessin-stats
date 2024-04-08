@@ -9,4 +9,6 @@ __pycache__/
 *.pkl
 *.exe
 *.swp
+
+test.py
 model.json
