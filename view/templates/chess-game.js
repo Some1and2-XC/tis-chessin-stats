@@ -2,7 +2,11 @@ var board = null;
 var game = new Chess();
 var $status = $("#status");
 var $fen = $("#fen");
-var $pgn= $("#pgn");
+var $pgn = $("#pgn");
+var $eval = $("#eval");
+
+var $white_elo = $("#whiteElo");
+var $black_elo = $("#blackElo");
 
 function onDragStart(source, piece, position, orientation) {
     if (game.game_over()) return false;
@@ -59,6 +63,21 @@ function updateStatus() {
     $status.html(status);
     $fen.html(game.fen());
     $pgn.html(game.pgn());
+
+    fetch("/get_stats?" + new URLSearchParams({
+        whiteElo: $white_elo.val(),
+        blackElo: $black_elo.val(),
+        pgn: game.pgn(),
+    }))
+        .then(res => res.json())
+        .then(data => {
+            $eval.html(data.eval);
+
+            return data;
+        })
+        .then(console.log)
+        ;
+
 }
 
 var config = {
