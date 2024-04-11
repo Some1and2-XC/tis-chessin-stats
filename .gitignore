@@ -1,5 +1,7 @@
 target/
 venv/
+bins/
+eco.pgn
 __pycache__/
 
 *.lock

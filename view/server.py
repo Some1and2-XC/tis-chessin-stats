@@ -26,7 +26,7 @@ def get_eco_code(pgn: str) -> str:
     import subprocess
     import json
 
-    parser = ["../../pgn-extract.exe", "-e", "--json"]
+    parser = ["../bins/pgn-extract.exe", "-e", "--json"]
     proc = subprocess.Popen(args=parser, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
     pgn += " 1-0"
