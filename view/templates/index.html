@@ -47,14 +47,18 @@
 
         <label>Status:</label>
         <div id="status"></div>
+        <label>Opening:</label>
+        <div id="opening"></div>
+        <label>ECO:</label>
+        <div id="eco"></div>
         <label>FEN:</label>
         <div id="fen"></div>
         <label>PGN:</label>
         <div id="pgn"></div>
         <label>White Elo</label>
-        <input id="whiteElo" type="number" value="1500" />
+        <input id="whiteElo" type="number" value="1500" onchange="updateStatus()" />
         <label>Black Elo</label>
-        <input id="blackElo" type="number" value="1500" />
+        <input id="blackElo" type="number" value="1500" onchange="updateStatus()" />
 
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"
             integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2"

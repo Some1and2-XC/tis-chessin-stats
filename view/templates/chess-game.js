@@ -1,6 +1,8 @@
 var board = null;
 var game = new Chess();
 var $status = $("#status");
+var $eco = $("#eco");
+var $opening = $("#opening");
 var $fen = $("#fen");
 var $pgn = $("#pgn");
 var $eval = $("#eval");
@@ -75,6 +77,8 @@ function updateStatus() {
     }))
         .then(res => res.json())
         .then(data => {
+            $opening.html(data.opening)
+            $eco.html(data.eco)
             $eval.html(data.eval / 100);
 
             const HEIGHT_FACTOR = 1;

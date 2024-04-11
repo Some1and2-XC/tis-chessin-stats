@@ -19,6 +19,28 @@ os.environ["CHESS_ENGINE"] = "stockfish-windows-x86-64-avx2.exe"
 app = Flask(__name__)
 
 
+def get_eco_code(pgn: str) -> str:
+    """
+    Function for getting the ECO code of the game.
+    """
+    import subprocess
+    import json
+
+    parser = ["../../pgn-extract.exe", "-e", "--json"]
+    proc = subprocess.Popen(args=parser, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+    pgn += " 1-0"
+    out = proc.communicate(input=bytearray(pgn, "ascii"))
+
+    print(out, type(out))
+
+    if out[0] is None:
+        raise ValueError("Can't Parse Game")
+        return
+
+    return (json.loads(out[0])[0]["ECO"], json.loads(out[0])[0]["Opening"])
+
+
 @app.route("/", methods=("GET",))
 def home():
     return render_template("index.html")
@@ -41,6 +63,11 @@ def stats():
     WhiteElo = request.args.get("whiteElo", default=1500, type=int)
     BlackElo = request.args.get("BlackElo", default=1500, type=int)
 
+    try:
+        eco, opening = get_eco_code(request.args.get("pgn", type=str))
+    except:
+        eco, opening = "?", "?"
+
     engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci(os.path.join("..", "uci", os.environ["CHESS_ENGINE"]))
     game: chess.pgn.Game = chess.pgn.read_game(io.StringIO(request.args.get("pgn", type=str)))
     board: chess.Board = chess.Board()
@@ -60,7 +87,7 @@ def stats():
         .score(mate_score=100000)
 
     ECO_code_arr = [0 for i in data.ECO_codes]
-    ECO_code_arr[data.ECO_codes["A20"]] = 1
+    ECO_code_arr[data.ECO_codes[eco]] = 1
 
     AI_arr = [WhiteElo, BlackElo, amnt_of_moves, eval, *ECO_code_arr]
 
@@ -87,6 +114,8 @@ def stats():
     return {
         "eval": eval,
         "prediction": prediction,
+        "eco": eco,
+        "opening": opening,
     }
 
 
