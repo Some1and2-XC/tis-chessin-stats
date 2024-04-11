@@ -1,12 +1,11 @@
 target/
 venv/
 bins/
-eco.pgn
 __pycache__/
 
 *.lock
 *.zst
-*.pgn
+# *.pgn
 *.csv
 *.pkl
 *.exe
