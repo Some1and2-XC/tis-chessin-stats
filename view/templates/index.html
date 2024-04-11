@@ -13,6 +13,7 @@
                 box-sizing: border-box;
                 flex-direction: column;
                 border: 2px solid black;
+                border-right: none;
                 width: 50px;
                 height: 396px;
             }
@@ -26,10 +27,16 @@
 
             .result-box p {
                 font-family: Arial, Helvetica, sans-serif;
+                /* font-weight: bold; */
             }
         </style>
 
         <div style="display: flex;">
+            <div class="result-container">
+                <div class="result-box" style="flex-grow: 1">
+                    <p id="eval"></p>
+                </div>
+            </div>
             <div class="result-container">
                 <div id="res-1-0" class="result-box" style="background-color: white;"></div>
                 <div id="res-draw" class="result-box" style="background-color: grey;"></div>
@@ -44,8 +51,6 @@
         <div id="fen"></div>
         <label>PGN:</label>
         <div id="pgn"></div>
-        <label>Eval:</label>
-        <div id="eval"></div>
         <label>White Elo</label>
         <input id="whiteElo" type="number" value="1500" />
         <label>Black Elo</label>

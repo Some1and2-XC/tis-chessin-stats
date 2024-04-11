@@ -75,7 +75,7 @@ function updateStatus() {
     }))
         .then(res => res.json())
         .then(data => {
-            $eval.html(data.eval);
+            $eval.html(data.eval / 100);
 
             const HEIGHT_FACTOR = 1;
             const PROPERTY = "flex-grow"
