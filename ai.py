@@ -196,11 +196,21 @@ def make_model(df: pd.DataFrame, test_size: float = 0.1):
     test = xgb.DMatrix(x_test, y_test)
 
     # Initializes the model
+    """
     model = xgb.XGBRegressor(
         n_estimators=500,
         max_depth=6,
         learning_rate=0.01,
         early_stopping_rounds=20,
+    )
+    """
+
+    model = xgb.XGBClassifier(
+        tree_method="hist",
+        n_estimators=50000,
+        max_depth=5,
+        learning_rate=0.05,
+        early_stopping_rounds=50,
     )
 
     # Tries to fit the data

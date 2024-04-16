@@ -91,14 +91,15 @@ def stats():
 
     AI_arr = [WhiteElo, BlackElo, amnt_of_moves, eval, *ECO_code_arr]
 
-    model = xgb.XGBRegressor()
+    # model = xgb.XGBRegressor()
+    model = xgb.XGBClassifier()
     model.load_model("../new_output/model.json")
 
     def softmax(x):
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum()
 
-    prediction = softmax(model.predict([AI_arr])[0][:3])
+    prediction = softmax(model.predict_proba([AI_arr])[0][:3])
 
     results = {
         "0-1": 0,
@@ -110,6 +111,11 @@ def stats():
         k: float(prediction[v])
         for k, v in results.items()
     }
+
+    if opening == "?":
+        opening = "Starting Position"
+    if eco == "?":
+        eco = ""
 
     return {
         "eval": eval,
