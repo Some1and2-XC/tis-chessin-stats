@@ -22,22 +22,17 @@
                 flex-direction: column;
                 margin: auto;
                 margin-top: calc(50vh - 496px / 2);
-                box-shadow: 2px 1px 20px -8px black;
 
                 font-family: Arial, Helvetica, sans-serif;
             }
 
             .board-section {
                 display: flex;
-                border: 2px solid #404040;
+                /* border: 2px solid #404040; */
             }
 
-            .board-section[noborder] {
-                border: none;
-            }
-
-            .board-section[noborder-bottom] {
-                border-bottom: none;
+            .board-section[shadow] {
+                box-shadow: 2px 1px 20px -8px black;
             }
 
             .result-container {
@@ -64,10 +59,12 @@
         </style>
 
         <div class="app-container">
-            <div class="board-section" noborder-bottom style="justify-content: center">
-                <p><span id="opening"></span> <span id="eco"></span></p>
+            <div class="board-section">
+                <p style="margin: .25rem"><b>
+                    <span id="opening">Starting Position</span> <span id="eco"></span>
+                </b></p>
             </div>
-            <div class="board-section" noborder>
+            <div class="board-section" shadow>
                 <div class="result-container">
                     <div class="result-box" style="flex-grow: 1">
                         <p id="eval"></p>
@@ -79,6 +76,16 @@
                     <div id="res-1-0" class="result-box" style="background-color: white;"></div>
                 </div>
                 <div id="board1" style="width: 396px; height: 396px"></div>
+            </div>
+            <div class="board-section" style="align-items: center; flex-direction: column; padding: .5rem;">
+                <div>
+                    <label>White Elo</label>
+                    <input id="whiteElo" type="number" value="1500" onchange="updateStatus()" />
+                </div>
+                <div>
+                    <label>Black Elo</label>
+                    <input id="blackElo" type="number" value="150000" onchange="updateStatus()" />
+                </div>
             </div>
         </div>
 
@@ -93,12 +100,6 @@
             <div id="fen"></div>
             <label>PGN:</label>
             <div id="pgn"></div>
-
-            <label>White Elo</label>
-            <input id="whiteElo" type="number" value="1500" onchange="updateStatus()" />
-            <br />
-            <label>Black Elo</label>
-            <input id="blackElo" type="number" value="1500" onchange="updateStatus()" />
         </div>
 
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"
