@@ -70,7 +70,7 @@ function updateStatus() {
     $fen.html(game.fen());
     $pgn.html(game.pgn());
 
-    fetch("/get_stats?" + new URLSearchParams({
+    fetch("./get_stats?" + new URLSearchParams({
         whiteElo: $white_elo.val(),
         blackElo: $black_elo.val(),
         pgn: game.pgn(),
