@@ -1,0 +1,9 @@
+flask
+waitress
+
+pandas
+
+xgboost
+scikit-learn    
+
+chess

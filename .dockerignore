@@ -1,19 +1,14 @@
 target/
 venv/
-bins/
-
-stockfish/
-stockfish*
 __pycache__/
+
+data/
 
 *.lock
 *.zst
 # *.pgn
 *.csv
-*.json
 *.pkl
-*.exe
 *.swp
 
 test.py
-model.json

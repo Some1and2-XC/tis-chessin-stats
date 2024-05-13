@@ -9,5 +9,6 @@ scikit-learn
 chess
 
 flask
+waitress
 requests
 lxml
