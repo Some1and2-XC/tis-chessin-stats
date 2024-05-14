@@ -100,7 +100,7 @@ def init_app():
 
         # model = xgb.XGBRegressor()
         model = xgb.XGBClassifier()
-        model.load_model("model/model.json")
+        model.load_model("output/model.json")
 
         def softmax(x):
             e_x = np.exp(x - np.max(x))
