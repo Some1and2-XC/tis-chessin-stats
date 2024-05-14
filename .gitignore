@@ -2,6 +2,8 @@ target/
 venv/
 bins/
 
+new_output/
+
 stockfish/
 stockfish*
 __pycache__/
@@ -10,10 +12,9 @@ __pycache__/
 *.zst
 # *.pgn
 *.csv
-*.json
+# *.json
 *.pkl
 *.exe
 *.swp
 
 test.py
-model.json
