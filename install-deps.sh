@@ -5,9 +5,7 @@ python3 -m pip install -r requirements.txt
 
 # Installs PGN Extractor
 echo Installing PGN-Extract
-pgnurl=https://www.cs.kent.ac.uk/~djb/pgn-extract/pgn-extract-22-11.tgz
-curl -L $pgnurl > ./bins/pgn-extract.exe
-chmod +x ./bins/pgn-extract.exe
+apt install pgn-extract -y
 
 # Installs Stockfish
 echo Installing Stockfish
