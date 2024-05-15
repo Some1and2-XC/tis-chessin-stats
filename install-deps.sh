@@ -6,6 +6,7 @@ python3 -m pip install -r requirements.txt
 # Installs PGN Extractor
 echo Installing PGN-Extract
 apt install pgn-extract -y
+echo "export PATH=\$PATH:/usr/games" >> ~/.bashrc
 
 # Installs Stockfish
 echo Installing Stockfish
