@@ -19,8 +19,6 @@ if "CHESS_ENGINE" not in os.environ:
     # os.environ["CHESS_ENGINE"] = "stockfish-windows-x86-64-avx2.exe"
     os.environ["CHESS_ENGINE"] = "stockfish-ubuntu-x86-64.exe"
 
-engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci(os.path.join("uci", os.environ["CHESS_ENGINE"]))
-
 def get_eco_code(pgn: str) -> str:
     """
     Function for getting the ECO code of the game.
@@ -65,7 +63,10 @@ def init_app():
 
     @app.route("/get_stats/")
     def stats():
-        global engine
+
+        # Creates new instance of the engine on request
+        # This is to hopefully prevent a memory leak (when this is set globally)
+        engine: chess.engine.SimpleEngine = chess.engine.SimpleEngine.popen_uci(os.path.join("uci", os.environ["CHESS_ENGINE"]))
 
         # Initializes Chess Data
         WhiteElo = request.args.get("whiteElo", default=1500, type=int)
